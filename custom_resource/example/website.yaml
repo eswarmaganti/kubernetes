@@ -1,0 +1,14 @@
+#
+# The yaml manifest to create a custom resource for StaticWebsite CRD
+#
+---
+apiVersion: platform.eswar.dev/v1alpha1
+kind: StaticWebsite
+metadata:
+  name: my-nginx-sw
+spec:
+  image: nginx:1.31-alpine
+  replicas: 2
+  port: 80
+  targetPort: 80
+  domain: portfolio.eswar.dev

@@ -1,0 +1,70 @@
+---
+apiVersion: apiextensions.k8s.io/v1 # the api version for CRDs
+kind: CustomResourceDefinition
+metadata:
+  name: staticwebsites.platform.eswar.dev # it should be <plural> + <api group>
+
+spec:
+  group: platform.eswar.dev # The group name of the CR
+  scope: Namespaced # the CR exists inside a namespace
+  names: # defines the kubectl behaviour
+    plural: staticwebsites
+    singular: staticwebsite
+    kind: StaticWebsite
+    shortNames:
+      - sw
+  versions:
+    - name: v1alpha1
+      served: true # the API server serves this version
+      storage: true # the version stored in etcd
+
+      schema: # the CR schema for validation
+        openAPIV3Schema:
+          type: object # root object - the CR is a object
+          properties:
+
+            spec:
+              type: object
+              properties:
+                image:
+                  type: string
+                replicas:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                domain:
+                  type: string
+                port:
+                  type: integer
+                  minimum: 1
+                  maximum: 65535
+                targetPort:
+                  type: integer
+                  minimum: 1
+                  maximum: 65535
+              required: # mandatory fields allowed
+                - image
+                - replicas
+                - port
+                - targetPort
+
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                deploymentName:
+                  type: string
+                serviceName:
+                  type: string
+
+      additionalPrinterColumns: # useful to specify which fields to be displayed in the output of `kubectl get` commands
+        - name: Image
+          type: string
+          jsonPath: .spec.image
+        - name: Replicas
+          type: integer
+          jsonPath: .spec.replicas
+        - name: Domain
+          type: string
+          jsonPath: .spec.domain
