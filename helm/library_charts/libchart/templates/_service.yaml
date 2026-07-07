@@ -1,0 +1,41 @@
+{{- define "lib.service" }}
+{{- if .Values.service.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Values.service.name }}"
+  annotations: {{ toYaml .Values.service.annotations | nindent 4 }}
+  labels: {{toYaml .Values.service.labels | nindent 4}}
+spec:
+  type: {{ .Values.service.type }}
+
+  ports:
+  {{- $type := .Values.service.type }}
+  {{- range $port := .Values.service.ports }}
+    - name: {{ $port.name }}
+      port: {{ $port.port }}
+
+      {{- if $port.targetPort }}
+      targetPort: {{ $port.targetPort }}
+      {{- else }}
+      targetPort: {{ $port.port }}
+      {{- end }}
+
+      {{- if $port.protocol }}
+      protocol: {{ $port.protocol }}
+      {{- end }}
+
+      {{- if and (eq $type "NodePort") (hasKey $port "nodePort" ) ($port.nodePort) }}
+      nodePort: {{ $port.nodePort }}
+      {{- end }}
+  {{- end }}
+
+  selector: {{toYaml .Values.service.selector | nindent 4}}
+---
+{{- end }}
+{{- end }}
+
+
+
+
